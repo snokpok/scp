@@ -1,0 +1,6 @@
+[submodule "scp-go"]
+	path = scp-go
+	url = git@github.com:snokpok/scp-go.git
+[submodule "scp-frontend"]
+	path = scp-frontend
+	url = git@github.com:snokpok/scp-frontend.git
