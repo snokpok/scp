@@ -14,6 +14,10 @@ I got an idea to do something cool to personalize my website. Since I loved bang
 
 <h2 id="demo">Demo</h2>
 
-To get a demo, go to <a href="scp.vuvincent.com">this</a> and login. Play a song on your Spotify then see the widget
+To get a demo, go to <a href="https://scp.vuvincent.com">this</a> and login. Play a song on your Spotify then see the widget
 
 <h2 id="technologies">Technologies</h2>
+
+- Golang for our server (based on the Gin framework)
+- MongoDB for database (hosted on Atlas)
+- Heroku for deployment
