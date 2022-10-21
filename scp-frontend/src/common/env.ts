@@ -1,2 +1,2 @@
-export const CLIENT_ID = "e205fcd932ff4badac251760f8d859d6";
-export const CLIENT_SECRET = "4ab34bca51594901a8295c6293045728";
+export const CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
+export const CLIENT_SECRET = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET;

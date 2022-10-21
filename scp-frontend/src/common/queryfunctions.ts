@@ -6,7 +6,7 @@ import { CLIENT_ID, CLIENT_SECRET } from "./env";
 export const getClientHeaderField = (clientId: string, clientSecret: string) =>
 	Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 
-const headerField = getClientHeaderField(CLIENT_ID, CLIENT_SECRET);
+const headerField = getClientHeaderField(CLIENT_ID!, CLIENT_SECRET!);
 
 export const requestToken = async (code: string) => {
 	const res = axios({
