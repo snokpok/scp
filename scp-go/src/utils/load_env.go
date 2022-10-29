@@ -1,4 +1,4 @@
-package startup
+package utils
 
 import (
 	"log"
@@ -8,23 +8,25 @@ import (
 	"github.com/snokpok/scp-go/src/schema"
 )
 
-var Psv schema.ExposedEnvironmentVariables
+var psv *schema.ExposedEnvironmentVariables
 
 // load in server environments and configure various server settings accordingly
 // e.g DEPLOY_MODE.
 // If was not parsed before then parse it again
-func LoadServerEnv(file string) schema.ExposedEnvironmentVariables {
-	// load in envfile
-	err := godotenv.Load(file)
-	if err != nil {
-		log.Fatal(err)
+func LoadServerEnv(files ...string) *schema.ExposedEnvironmentVariables {
+	// load in envfile if there is any
+	if len(files) != 0 {
+		err := godotenv.Load(files...)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
-	if Psv != nil {
-		return Psv
+	if psv != nil {
+		return psv
 	}
 
-	Psv := schema.ExposedEnvironmentVariables{
+	psv := schema.ExposedEnvironmentVariables{
 		MongoDBClusterURI:   os.Getenv("MONGODB_CLUSTER_URI"),
 		SecretJWT:           os.Getenv("SECRET_JWT"),
 		SpotifyClientID:     os.Getenv("SPOTIFY_CLIENT_ID"),
@@ -33,5 +35,5 @@ func LoadServerEnv(file string) schema.ExposedEnvironmentVariables {
 		RedisHost:           os.Getenv("REDIS_HOST"),
 		DeployMode:          os.Getenv("DEPLOY_MODE"),
 	}
-	return Psv
+	return &psv
 }
