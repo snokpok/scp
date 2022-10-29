@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/snokpok/scp-go/src/schema"
 )
 
 type AuthTokenProps struct {
@@ -32,11 +33,11 @@ func HelperGetTokenValidateHeader(authHeader string) (string, error) {
 func GenerateAccessToken(userData AuthTokenProps) (string, error) {
 	// create the jwt token to authorize client to THIS server (not Spotify's)
 	secretKey := []byte(os.Getenv("SECRET_JWT"))
-	claims := UserClaim{
+	claims := schema.UserClaim{
 		userData.Username,
 		userData.Email,
 		jwt.StandardClaims{
-			Issuer: os.Getenv("SPOTIFY_CLIENT_ID"),
+			Issuer: LoadServerEnv().SpotifyClientID,
 		},
 	}
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(secretKey)
@@ -46,11 +47,11 @@ func GenerateAccessToken(userData AuthTokenProps) (string, error) {
 	return token, nil
 }
 
-func DecodeAccessToken(token string) (UserClaim, error) {
+func DecodeAccessToken(token string) (schema.UserClaim, error) {
 	// decoding the app auth token; returns empty UserClaim struct with err if there's an error
-	claims := UserClaim{}
+	claims := schema.UserClaim{}
 	tokenInfo, err := jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("SECRET_JWT")), nil
+		return []byte(LoadServerEnv().SecretJWT), nil
 	})
 	if tokenInfo == nil || !tokenInfo.Valid {
 		return claims, err

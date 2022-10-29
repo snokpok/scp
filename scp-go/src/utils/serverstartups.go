@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/snokpok/scp-go/src/startup"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,7 +17,7 @@ func ConnectMongoDBSetup() (*mongo.Client, error) {
 	// starting up the database client with timeout of 5s
 	ctx, cancel := context.WithTimeout(context.TODO(), 20*time.Second)
 	defer cancel()
-	uri := startup.LoadServerEnv().MongoDBClusterURI
+	uri := LoadServerEnv().MongoDBClusterURI
 	clientConfigs := options.Client().ApplyURI(uri)
 	mdb, err := mongo.Connect(ctx, clientConfigs)
 	if err != nil {
@@ -62,7 +61,7 @@ func CreateIndexesMDB(mdb *mongo.Client) {
 
 func ConnectSetupRedis() (*redis.Client, error) {
 	// connecting with redis client
-	envs := startup.LoadServerEnv()
+	envs := LoadServerEnv()
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     envs.RedisHost,
 		Password: envs.RedisPassword,
