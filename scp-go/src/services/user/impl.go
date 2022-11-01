@@ -1,16 +1,15 @@
-package services
+package user
 
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	uuid "github.com/satori/go.uuid"
-	"github.com/snokpok/scp-go/src/repositories"
+	"github.com/snokpok/scp-go/src/repositories/user"
 	"github.com/snokpok/scp-go/src/schema"
 	"github.com/snokpok/scp-go/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
@@ -21,7 +20,7 @@ import (
 func GetCurrentUser(c *gin.Context, dbcs *schema.DbClients) (*schema.User, int, error) {
 	// get all user info from db with secret key
 	email := c.GetString(string(schema.ContextMeClaim))
-	users, err := repositories.FindUsers(dbcs.Mdb, bson.M{"email": email})
+	users, err := user.FindUsers(dbcs.Mdb, bson.M{"email": email})
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
@@ -57,7 +56,7 @@ func CreateUser(c *gin.Context, dbcs *schema.DbClients) (*CreateUserResponse, in
 			return &CreateUserResponse{}, 400, err
 		}
 		// if it's created then handle creation of app-domain access token
-		user, err := repositories.FindOneUser(dbcs.Mdb, bson.M{"email": userData.Email})
+		user, err := user.FindOneUser(dbcs.Mdb, bson.M{"email": userData.Email})
 		if err != nil {
 			// this often happens due to timeout or just some other problem interacting with the db
 			return &CreateUserResponse{}, 400, err
@@ -86,39 +85,4 @@ func CreateUser(c *gin.Context, dbcs *schema.DbClients) (*CreateUserResponse, in
 		User:  userData,
 		Token: token,
 	}, 200, nil
-}
-
-func GetFromSpotifyCurrentlyPlaying(c *gin.Context, dbcs *schema.DbClients) (*map[string]interface{}, int, error) {
-
-	email := c.GetString(string(schema.ContextMeClaim))
-
-	userFound, err := repositories.FindOneUser(dbcs.Mdb, bson.M{"email": email})
-	if err != nil {
-		return nil, 404, err
-	}
-
-	resultScp, _ := repositories.RequestSCPFromSpotify(userFound.AccessToken)
-
-	if resultScp["error"] != nil {
-		// request refreshed access token from spotify
-		log.Println("--refreshing new access token from spotify--")
-		newTkn, err := repositories.RequestNewAccessTokenFromSpotify(userFound.RefreshToken)
-		if err != nil {
-			return nil, http.StatusFailedDependency, err
-		}
-
-		// update the newly issued access token from spotify
-		updateCmd := bson.M{
-			"$set": bson.M{"access_token": newTkn},
-		}
-		dbcs.Mdb.Database("main").Collection("users").FindOneAndUpdate(context.Background(), bson.M{"email": email}, updateCmd)
-
-		// fetch the new CP results
-		resultScp, err = repositories.RequestSCPFromSpotify(newTkn)
-		if err != nil {
-			return nil, http.StatusFailedDependency, err
-		}
-	}
-
-	return &resultScp, 200, nil
 }

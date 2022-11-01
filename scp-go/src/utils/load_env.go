@@ -17,8 +17,10 @@ var psv *schema.ExposedEnvironmentVariables
 func LoadServerEnv(files ...string) *schema.ExposedEnvironmentVariables {
 	// load in envfile if there is any specified
 	// if can't parse file then panics
-    if len(files) != 0 && err := godotenv.Load(files...); err != nil {
-		log.Panic(err)
+	if len(files) != 0 {
+		if err := godotenv.Load(files...); err != nil {
+			log.Panic(err)
+		}
 	}
 
 	if psv != nil {

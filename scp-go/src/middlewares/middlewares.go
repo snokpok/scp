@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/snokpok/scp-go/src/repositories"
+	"github.com/snokpok/scp-go/src/repositories/user"
 	"github.com/snokpok/scp-go/src/schema"
 	"github.com/snokpok/scp-go/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
@@ -46,7 +46,7 @@ func MwAuthorizeBasicHeaderRefresh(mdb *mongo.Client) gin.HandlerFunc {
 			})
 			return
 		}
-		user, err := repositories.FindOneUser(mdb, bson.M{"secret_key": secret})
+		user, err := user.FindOneUser(mdb, bson.M{"secret_key": secret})
 		if err != nil {
 			c.AbortWithStatusJSON(401, gin.H{
 				"error": err.Error(),

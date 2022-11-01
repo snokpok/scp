@@ -1,4 +1,4 @@
-package repositories
+package spotify
 
 import (
 	"encoding/base64"
