@@ -9,8 +9,6 @@ import (
 	"github.com/snokpok/scp-go/src/schema"
 )
 
-var psv *schema.ExposedEnvironmentVariables
-
 // load in server environments and configure various server settings accordingly
 // e.g DEPLOY_MODE.
 // If was not parsed before then parse it again
@@ -21,10 +19,6 @@ func LoadServerEnv(files ...string) *schema.ExposedEnvironmentVariables {
 		if err := godotenv.Load(files...); err != nil {
 			log.Panic(err)
 		}
-	}
-
-	if psv != nil {
-		return psv
 	}
 
 	// handle invalid port (<0 & NaN)

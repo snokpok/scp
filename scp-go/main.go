@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-gonic/gin"
 	"github.com/snokpok/scp-go/src/schema"
 	"github.com/snokpok/scp-go/src/startup"
 	"github.com/snokpok/scp-go/src/utils"
@@ -30,6 +31,10 @@ func main() {
 	// router setup
 	r := startup.CreateRouter(dbcs)
 
+	if utils.LoadServerEnv().DeployMode == "release" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	port := utils.LoadServerEnv().Port
 	// invalid port parsed from LoadServerEnv (<0 or NaN)
 	if port == -1 {
@@ -37,6 +42,6 @@ func main() {
 		port = 4000 // default to this
 	}
 
-	log.Printf("Server listening on port %s", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), r))
+	log.Printf("Server listening on port %d", port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), r))
 }
