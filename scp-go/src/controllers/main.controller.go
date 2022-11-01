@@ -49,3 +49,9 @@ func GetSCP(dbcs *schema.DbClients) gin.HandlerFunc {
 		c.JSON(code, *resultScp)
 	}
 }
+
+// get some other person currently playing song
+func GetUserSCP(dbcs *schema.DbClients) gin.HandlerFunc {
+	return func(c *gin.Context) {
+	}
+}

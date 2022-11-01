@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"os"
 
-	schema "github.com/snokpok/scp-go/src/schema"
+	"github.com/snokpok/scp-go/src/schema"
 	"github.com/snokpok/scp-go/src/startup"
+	"github.com/snokpok/scp-go/src/utils"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -18,16 +19,22 @@ var (
 )
 
 func main() {
-	// load in envfile
-	startup.LoadServerEnv(".env")
+	lerr := log.New(os.Stderr, log.Prefix(), 0)
+
+	// load in envfile if there is any
+	if _, err := os.Open(".env"); err == nil {
+		utils.LoadServerEnv(".env")
+	}
 	// setup mongodb
 	startup.SetupDB(dbcs)
 	// router setup
 	r := startup.CreateRouter(dbcs)
 
-	port := os.Getenv("PORT")
-	if len(port) == 0 {
-		port = "4000"
+	port := utils.LoadServerEnv().Port
+	// invalid port parsed from LoadServerEnv (<0 or NaN)
+	if port == -1 {
+		lerr.Println("Invalid port (must be positive integer) -- defaulting to 4000")
+		port = 4000 // default to this
 	}
 
 	log.Printf("Server listening on port %s", port)

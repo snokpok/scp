@@ -1,6 +1,7 @@
 package schema
 
 type ExposedEnvironmentVariables struct {
+	Port                int
 	MongoDBClusterURI   string
 	SecretJWT           string
 	SpotifyClientID     string

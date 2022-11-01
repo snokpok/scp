@@ -97,12 +97,12 @@ func GetFromSpotifyCurrentlyPlaying(c *gin.Context, dbcs *schema.DbClients) (*ma
 		return nil, 404, err
 	}
 
-	resultScp, _ := utils.RequestSCPFromSpotify(userFound.AccessToken)
+	resultScp, _ := repositories.RequestSCPFromSpotify(userFound.AccessToken)
 
 	if resultScp["error"] != nil {
 		// request refreshed access token from spotify
 		log.Println("--refreshing new access token from spotify--")
-		newTkn, err := utils.RequestNewAccessTokenFromSpotify(userFound.RefreshToken)
+		newTkn, err := repositories.RequestNewAccessTokenFromSpotify(userFound.RefreshToken)
 		if err != nil {
 			return nil, http.StatusFailedDependency, err
 		}
@@ -114,7 +114,7 @@ func GetFromSpotifyCurrentlyPlaying(c *gin.Context, dbcs *schema.DbClients) (*ma
 		dbcs.Mdb.Database("main").Collection("users").FindOneAndUpdate(context.Background(), bson.M{"email": email}, updateCmd)
 
 		// fetch the new CP results
-		resultScp, err = utils.RequestSCPFromSpotify(newTkn)
+		resultScp, err = repositories.RequestSCPFromSpotify(newTkn)
 		if err != nil {
 			return nil, http.StatusFailedDependency, err
 		}

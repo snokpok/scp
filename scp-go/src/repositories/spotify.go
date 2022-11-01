@@ -1,4 +1,4 @@
-package utils
+package repositories
 
 import (
 	"encoding/base64"
