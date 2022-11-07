@@ -11,7 +11,9 @@
 		"@types/node": "^12.0.0",
 		"@types/react": "^17.0.0",
 		"@types/react-dom": "^17.0.0",
+		"Buffer": "^0.0.0",
 		"axios": "^0.24.0",
+		"buffer": "^6.0.3",
 		"dotenv": "^10.0.0",
 		"formik": "^2.2.9",
 		"history": "5",
@@ -26,9 +28,8 @@
 		"web-vitals": "^1.0.1"
 	},
 	"scripts": {
-		"start": "craco start",
-		"build": "craco build",
-		"test": "craco test",
+		"start": "vite",
+		"build": "tsc && vite build",
 		"eject": "react-scripts eject",
 		"serve": "serve -s build",
 		"format": "prettier --write --cache ."
@@ -52,8 +53,11 @@
 		]
 	},
 	"devDependencies": {
+		"@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+		"@vitejs/plugin-react": "^2.2.0",
 		"autoprefixer": "^9",
 		"postcss": "^7",
-		"tailwindcss": "npm:@tailwindcss/postcss7-compat"
+		"tailwindcss": "npm:@tailwindcss/postcss7-compat",
+		"vite": "^3.2.2"
 	}
 }
