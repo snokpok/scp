@@ -3,11 +3,11 @@ package spotify
 import (
 	"encoding/base64"
 	"encoding/json"
+	"github.com/snokpok/scp-go/src/utils"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 )
 
@@ -41,12 +41,16 @@ func RequestNewAccessTokenFromSpotify(refreshToken string) (string, error) {
 	form.Add("grant_type", "refresh_token")
 	form.Add("refresh_token", refreshToken)
 
+	// get environment
+	env := utils.LoadServerEnv()
+
+	// make refresh token request to Spotify
 	refreshUrl := "https://accounts.spotify.com/api/token"
 	reqRefreshToken, err := http.NewRequest(http.MethodPost, refreshUrl, strings.NewReader(form.Encode()))
 	if err != nil {
 		log.Fatal(err)
 	}
-	encodedHeaderClient := base64.StdEncoding.EncodeToString([]byte(os.Getenv("SPOTIFY_CLIENT_ID") + ":" + os.Getenv("SPOTIFY_CLIENT_SECRET")))
+	encodedHeaderClient := base64.StdEncoding.EncodeToString([]byte(env.SpotifyClientID + ":" + env.SpotifyClientSecret))
 	reqRefreshToken.Header.Set("Authorization", "Basic "+encodedHeaderClient)
 	reqRefreshToken.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
@@ -68,6 +72,6 @@ func RequestNewAccessTokenFromSpotify(refreshToken string) (string, error) {
 		return "", err
 	}
 	newAcTkn := resultNewSpotifyToken["access_token"].(string)
-	log.Println(newAcTkn)
+	log.Println("new access token: " + newAcTkn)
 	return newAcTkn, nil
 }

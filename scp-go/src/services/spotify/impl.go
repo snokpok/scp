@@ -35,9 +35,13 @@ func GetFromSpotifyCurrentlyPlaying(c *gin.Context, dbcs *schema.DbClients) (*ma
 		updateCmd := bson.M{
 			"$set": bson.M{"access_token": newTkn},
 		}
-		dbcs.Mdb.Database("main").Collection("users").FindOneAndUpdate(context.Background(), bson.M{"email": email}, updateCmd)
+		dbcs.Mdb.Database("main").Collection("users").FindOneAndUpdate(
+			context.Background(),
+			bson.M{"email": email},
+			updateCmd,
+		)
 
-		// fetch the new CP results
+		// fetch the new results
 		resultScp, err = spotify.RequestSCPFromSpotify(newTkn)
 		if err != nil {
 			return nil, http.StatusFailedDependency, err

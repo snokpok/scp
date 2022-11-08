@@ -5,6 +5,7 @@ import (
 	"github.com/snokpok/scp-go/src/schema"
 	"github.com/snokpok/scp-go/src/services/spotify"
 	"github.com/snokpok/scp-go/src/services/user"
+	"github.com/snokpok/scp-go/src/utils"
 )
 
 func CreateUser(dbcs *schema.DbClients) gin.HandlerFunc {
@@ -14,6 +15,7 @@ func CreateUser(dbcs *schema.DbClients) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		res, code, err := user.CreateUser(c, dbcs)
 		if err != nil {
+			utils.LERR.Println(err.Error())
 			c.AbortWithStatusJSON(code, gin.H{
 				"error": err.Error(),
 				"data":  *res,
@@ -44,6 +46,7 @@ func GetSCP(dbcs *schema.DbClients) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		resultScp, code, err := spotify.GetFromSpotifyCurrentlyPlaying(c, dbcs)
 		if err != nil {
+			utils.LERR.Println(err.Error())
 			c.AbortWithStatusJSON(code, gin.H{"error": err.Error()})
 			return
 		}
