@@ -9,6 +9,7 @@ import (
 	"github.com/snokpok/scp-go/src/repositories/spotify"
 	"github.com/snokpok/scp-go/src/repositories/user"
 	"github.com/snokpok/scp-go/src/schema"
+	"github.com/snokpok/scp-go/src/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -28,6 +29,7 @@ func GetFromSpotifyCurrentlyPlaying(c *gin.Context, dbcs *schema.DbClients) (*ma
 		log.Println("--refreshing new access token from spotify--")
 		newTkn, err := spotify.RequestNewAccessTokenFromSpotify(userFound.RefreshToken)
 		if err != nil {
+			utils.LERR.Printf("Couldn't refresh access token: %s\n", err)
 			return nil, http.StatusFailedDependency, err
 		}
 
@@ -41,9 +43,11 @@ func GetFromSpotifyCurrentlyPlaying(c *gin.Context, dbcs *schema.DbClients) (*ma
 			updateCmd,
 		)
 
+		utils.LOUT.Println("Fetching new SCP results...")
 		// fetch the new results
 		resultScp, err = spotify.RequestSCPFromSpotify(newTkn)
 		if err != nil {
+			utils.LERR.Printf("Couldn't fetch new SCP results with new token: %s\n", err)
 			return nil, http.StatusFailedDependency, err
 		}
 	}
