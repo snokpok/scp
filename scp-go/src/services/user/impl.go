@@ -33,6 +33,14 @@ func GetCurrentUser(c *gin.Context, dbcs *schema.DbClients) (*schema.User, int, 
 	return &(*users)[0], http.StatusOK, nil
 }
 
+func GetUserById(id string, dbcs *schema.DbClients) (*schema.User, int, error) {
+	user, err := user.FindOneUser(dbcs.Mdb, bson.M{"id": id})
+	if err != nil {
+		return nil, http.StatusNotFound, err
+	}
+	return user, http.StatusAccepted, nil
+}
+
 type CreateUserResponse struct {
 	User  schema.User `json:"username,omitempty"`
 	Token string      `json:"token,omitempty"`

@@ -57,5 +57,20 @@ func GetSCP(dbcs *schema.DbClients) gin.HandlerFunc {
 // get some other person currently playing song
 func GetUserSCP(dbcs *schema.DbClients) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		id := c.Param("id")
+		user, code, err := user.GetUserById(id, dbcs)
+		if err != nil {
+			utils.LERR.Println(err.Error())
+			c.AbortWithStatusJSON(code, gin.H{"error": err.Error()})
+			return
+		}
+		// fetch scp with this user's access token
+		res, code, err := spotify.GetSCPForUser(user, dbcs)
+		if err != nil {
+			utils.LERR.Println(err.Error())
+			c.AbortWithStatusJSON(code, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(code, *res)
 	}
 }

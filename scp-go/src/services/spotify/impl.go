@@ -19,15 +19,19 @@ func GetFromSpotifyCurrentlyPlaying(c *gin.Context, dbcs *schema.DbClients) (*ma
 
 	userFound, err := user.FindOneUser(dbcs.Mdb, bson.M{"email": email})
 	if err != nil {
-		return nil, 404, err
+		return nil, http.StatusNotFound, err
 	}
+	result, code, err := GetSCPForUser(userFound, dbcs)
+	return result, code, err
+}
 
-	resultScp, _ := spotify.RequestSCPFromSpotify(userFound.AccessToken)
+func GetSCPForUser(user *schema.User, dbcs *schema.DbClients) (*map[string]interface{}, int, error) {
+	resultScp, _ := spotify.RequestSCPFromSpotify(user.AccessToken)
 
 	if resultScp["error"] != nil {
 		// request refreshed access token from spotify
-		log.Println("--refreshing new access token from spotify--")
-		newTkn, err := spotify.RequestNewAccessTokenFromSpotify(userFound.RefreshToken)
+		utils.LOUT.Printf("--Refreshing new access token for user %s from Spotify API--\n", user.ID.String())
+		newTkn, err := spotify.RequestNewAccessTokenFromSpotify(user.RefreshToken)
 		if err != nil {
 			utils.LERR.Printf("Couldn't refresh access token: %s\n", err)
 			return nil, http.StatusFailedDependency, err
@@ -37,11 +41,8 @@ func GetFromSpotifyCurrentlyPlaying(c *gin.Context, dbcs *schema.DbClients) (*ma
 		updateCmd := bson.M{
 			"$set": bson.M{"access_token": newTkn},
 		}
-		dbcs.Mdb.Database("main").Collection("users").FindOneAndUpdate(
-			context.Background(),
-			bson.M{"email": email},
-			updateCmd,
-		)
+		filter := bson.M{"id": user.ID}
+		user.UpdateOneUser(dbcs.Mdb, filter, updateCmd)
 
 		utils.LOUT.Println("Fetching new SCP results...")
 		// fetch the new results
@@ -52,5 +53,5 @@ func GetFromSpotifyCurrentlyPlaying(c *gin.Context, dbcs *schema.DbClients) (*ma
 		}
 	}
 
-	return &resultScp, 200, nil
+	return &resultScp, http.StatusAccepted, nil
 }

@@ -18,6 +18,7 @@ func CreateRouter(dbcs *schema.DbClients) *gin.Engine {
 		})
 	})
 	r.POST("/user", controllers.CreateUser(dbcs))
+	r.GET("/user/:id", controllers.GetUserSCP(dbcs))
 	r.GET("/me", mws.MwAuthorizeCurrentUser(dbcs.Mdb), controllers.GetMe(dbcs))
 	r.GET("/scp", mws.MwAuthorizeCurrentUser(dbcs.Mdb), controllers.GetSCP(dbcs))
 
