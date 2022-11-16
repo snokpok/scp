@@ -29,7 +29,6 @@ func RequestSCPFromSpotify(accessToken string) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	utils.LOUT.Printf("Response body: %s\n", responseBody)
 	// null -> no songs playing for now -> not necessarily err
 	if len(responseBody) == 0 {
 		return nil, nil
@@ -70,13 +69,12 @@ func RequestNewAccessTokenFromSpotify(refreshToken string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	log.Println(string(responseBody))
 	resultNewSpotifyToken := make(map[string]interface{})
 	err = json.Unmarshal(responseBody, &resultNewSpotifyToken)
 	if err != nil {
 		return "", err
 	}
 	newAcTkn := resultNewSpotifyToken["access_token"].(string)
-	log.Println("new access token: " + newAcTkn)
+	utils.LOUT.Println("new access token: " + newAcTkn)
 	return newAcTkn, nil
 }
