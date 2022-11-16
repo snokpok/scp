@@ -29,6 +29,11 @@ func RequestSCPFromSpotify(accessToken string) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	utils.LOUT.Printf("Response body: %s\n", responseBody)
+	// null -> no songs playing for now -> not necessarily err
+	if len(responseBody) == 0 {
+		return nil, nil
+	}
 	err = json.Unmarshal(responseBody, &resultScp)
 	if err != nil {
 		return nil, err
